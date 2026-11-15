@@ -59,6 +59,13 @@ few minutes of play. Tune the feel with tokens instead (`--fall-keep-speed`,
 `--fall-drag`, `--debris-bounce`, `--orbit-speed`). Only edit it when a comment
 asks for a physics change (like craters), and say that you did.
 
+## Vercel
+
+- The Vercel CLI is a dev dependency: run it as `npx vercel …` (no global install).
+- The Vercel MCP server is set up in `.mcp.json`. It works once the designer has
+  signed in with `/mcp`. Use it to find preview links, deployments and build logs.
+- Never deploy to production or change project settings unless asked.
+
 ## Check your work before sharing
 
 - `npm run dev`, then open http://localhost:3000.

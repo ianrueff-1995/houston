@@ -41,3 +41,8 @@ Space checks the most urgent satellite, R resets.
 - `.claude/settings.json` pre-approves the safe commands (dev, lint, build,
   git status/diff/add/commit, gh pr create).
 - `.worktreeinclude` copies `.env.local` and `.vercel` into Claude Code worktrees.
+- The Vercel CLI is a dev dependency, so `npx vercel …` works without a global install.
+- `.mcp.json` adds the Vercel MCP server (`https://mcp.vercel.com`), and
+  `.claude/settings.json` approves it. Claude Code only honors that approval once
+  you've trusted the folder (the first time you run `claude` there). Then sign in with `/mcp`.
+- `.qurio/seed.json` is the Qurio seed that sets all of this up on a new machine.

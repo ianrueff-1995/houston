@@ -40,8 +40,7 @@ export function reset(scenario = game.scenario) {
   game.world = createWorld();
   game.particles = createParticles(tokens.particleMax);
   game.bases = createBases();
-  game.satellites = [];
-  for (let i = 0; i < getScenario(scenario).startWith; i++) addSatellite(createSatellite(game.nextId++));
+  game.satellites = Array.from({ length: getScenario(scenario).startWith }, () => createSatellite(game.nextId++));
   emit();
 }
 
@@ -49,7 +48,7 @@ export function launchFrom(baseIndex: number) {
   const base = game.bases[baseIndex];
   if (!base || !launch(base)) return;
   const sat = createSatellite(game.nextId++, base.angle);
-  addSatellite(sat);
+  game.satellites.push(sat);
   game.particles?.burst("puff", sat.x, sat.y, 10);
   emit();
 }
@@ -103,11 +102,6 @@ export function satelliteAt(x: number, y: number) {
 
 // ---- The game loop ----
 
-function addSatellite(sat: Satellite) {
-  game.satellites.push(sat);
-  game.world?.addSatellite(sat);
-}
-
 function tick(dt: number) {
   const { world, particles } = game;
   if (!world || !particles) return;
@@ -121,7 +115,6 @@ function tick(dt: number) {
   }
   for (const hit of world.step(dt)) {
     game.satellites = game.satellites.filter((s) => s !== hit.sat);
-    world.removeSatellite(hit.sat);
     world.shatter(hit.x, hit.y);
     particles.burst("puff", hit.x, hit.y, 24);
     game.crashed += 1;

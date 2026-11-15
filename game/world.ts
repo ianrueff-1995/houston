@@ -1,15 +1,12 @@
-// The physics world, built on Planck.js (a port of Box2D).
-// Healthy satellites ride on rails: kinematic bodies the code moves along their
-// orbit. A falling satellite turns dynamic, keeps part of its speed and gets
-// pulled into the planet. On impact it breaks into debris that bounces, settles
-// on the surface and fades.
+// The physics world, written by hand (no physics library).
+// Healthy satellites ride on rails: satellite.ts moves them along a circle.
+// A falling satellite keeps part of its orbit speed, gets pulled toward the
+// planet's center every step, and a little drag makes its orbit decay so it
+// curves in. On impact it breaks into debris that bounces, piles up on the
+// surface and fades.
 // Designers: leave this file alone unless asked. Tune the feel with the tokens.
-import { Circle, Polygon, World, type Body } from "planck";
 import { tokens } from "./tokens";
 import type { Satellite } from "./satellite";
-
-const SCALE = 10; // world units per physics meter (Box2D likes objects of 0.1–10 m)
-const PLANET = 1, SATELLITE = 2, DEBRIS = 4; // collision groups
 
 /** The planet's pull, chosen so an orbit 200 units out takes 14 s at --orbit-speed: 1. */
 const gm = () => ((2 * Math.PI * tokens.orbitSpeed) / 14) ** 2 * 200 ** 3;
@@ -17,64 +14,41 @@ const gm = () => ((2 * Math.PI * tokens.orbitSpeed) / 14) ** 2 * 200 ** 3;
 /** Angular speed (radians/s) of a circular orbit with radius r. */
 export const orbitSpeed = (r: number) => Math.sqrt(gm() / r ** 3);
 
-export type Debris = { x: number; y: number; angle: number; age: number; points: { x: number; y: number }[] };
+type Body = { x: number; y: number; vx: number; vy: number };
+export type Debris = Body & {
+  angle: number;
+  spin: number;
+  size: number;
+  age: number;
+  rest: number; // seconds it has been barely moving; after half a second it sleeps
+  points: { x: number; y: number }[];
+};
 export type Impact = { sat: Satellite; x: number; y: number };
 
+const FRICTION = 6; // how quickly debris stops sliding
+const asleep = (p: Debris) => p.rest > 0.5;
+
+/** Pulls a loose body toward the planet's center for dt seconds, then moves it. */
+function fall(b: Body, dt: number, drag = 0) {
+  const d = Math.hypot(b.x, b.y);
+  const pull = (gm() / (d * d)) * dt;
+  b.vx = (b.vx - (b.x / d) * pull) * (1 - drag * dt);
+  b.vy = (b.vy - (b.y / d) * pull) * (1 - drag * dt);
+  b.x += b.vx * dt;
+  b.y += b.vy * dt;
+}
+
 export function createWorld() {
-  const world = new World({ gravity: { x: 0, y: 0 } });
-  const planet = world.createBody({ type: "static" });
-  let planetRadius = 0;
-  const satellites = new Map<Satellite, Body>();
-  const debris: (Debris & { body: Body })[] = [];
-  let impacts: Impact[] = [];
-
-  // A falling satellite touched the planet: note it now, handle it after the step.
-  world.on("begin-contact", (contact) => {
-    const a = contact.getFixtureA().getBody();
-    const b = contact.getFixtureB().getBody();
-    const body = a === planet ? b : b === planet ? a : null;
-    const sat = body?.getUserData() as Satellite | undefined;
-    if (body && sat) impacts.push({ sat, x: body.getPosition().x * SCALE, y: body.getPosition().y * SCALE });
-  });
-
-  // Rebuild the planet's shape whenever --planet-radius changes.
-  function syncPlanet() {
-    if (planetRadius === tokens.planetRadius) return;
-    planetRadius = tokens.planetRadius;
-    const old = planet.getFixtureList();
-    if (old) planet.destroyFixture(old);
-    planet.createFixture({ shape: new Circle(planetRadius / SCALE), friction: 0.8, filterCategoryBits: PLANET });
-  }
+  const falling = new Map<Satellite, Body>();
+  const debris: Debris[] = [];
 
   return {
-    debris: debris as Debris[],
+    debris,
 
-    /** Gives a satellite a body. It stays kinematic (on rails) until it falls. */
-    addSatellite(sat: Satellite) {
-      const body = world.createBody({ type: "kinematic", position: { x: sat.x / SCALE, y: sat.y / SCALE }, userData: sat });
-      body.createFixture({
-        shape: new Circle(tokens.satelliteSize / SCALE),
-        density: 1,
-        filterCategoryBits: SATELLITE,
-        filterMaskBits: PLANET,
-      });
-      satellites.set(sat, body);
-    },
-
-    removeSatellite(sat: Satellite) {
-      const body = satellites.get(sat);
-      if (body) world.destroyBody(body);
-      satellites.delete(sat);
-    },
-
-    /** The satellite starts falling: it turns dynamic and keeps part of its orbit speed. */
+    /** The satellite starts falling: it leaves its rails with part of its orbit speed. */
     drop(sat: Satellite) {
-      const body = satellites.get(sat);
-      if (!body) return;
-      const speed = (orbitSpeed(sat.orbit) * sat.orbit * tokens.fallKeepSpeed) / SCALE;
-      body.setType("dynamic");
-      body.setLinearDamping(tokens.fallDrag);
-      body.setLinearVelocity({ x: -Math.sin(sat.angle) * speed, y: Math.cos(sat.angle) * speed });
+      const speed = orbitSpeed(sat.orbit) * sat.orbit * tokens.fallKeepSpeed;
+      falling.set(sat, { x: sat.x, y: sat.y, vx: -Math.sin(sat.angle) * speed, vy: Math.cos(sat.angle) * speed });
     },
 
     /** Breaks a crashed satellite into debris at x,y. */
@@ -89,54 +63,71 @@ export function createWorld() {
           const r = tokens.debrisSize * (0.6 + Math.random() * 0.6);
           return { x: Math.cos(a) * r, y: Math.sin(a) * r };
         });
-        const body = world.createBody({ type: "dynamic", position: { x: (x + nx * 4) / SCALE, y: (y + ny * 4) / SCALE } });
-        body.createFixture({
-          shape: new Polygon(points.map((p) => ({ x: p.x / SCALE, y: p.y / SCALE }))),
-          density: 1,
-          friction: 0.8,
-          restitution: tokens.debrisBounce,
-          filterCategoryBits: DEBRIS,
-          filterMaskBits: PLANET | DEBRIS,
-        });
         const up = 40 + Math.random() * 90, side = (Math.random() - 0.5) * 160;
-        body.setLinearVelocity({ x: (nx * up - ny * side) / SCALE, y: (ny * up + nx * side) / SCALE });
-        body.setAngularVelocity((Math.random() - 0.5) * 20);
-        debris.push({ body, points, x, y, angle: 0, age: 0 });
+        debris.push({
+          x: x + nx * 4, y: y + ny * 4, vx: nx * up - ny * side, vy: ny * up + nx * side,
+          angle: Math.random() * 6, spin: (Math.random() - 0.5) * 20, size: tokens.debrisSize, age: 0, rest: 0, points,
+        });
       }
     },
 
     /** Advances the physics by dt seconds. Returns the satellites that hit the planet. */
     step(dt: number): Impact[] {
-      syncPlanet();
-      for (const [sat, body] of satellites) {
-        if (body.isKinematic()) body.setPosition({ x: sat.x / SCALE, y: sat.y / SCALE }); // on rails
-      }
-      // Gravity: every loose body gets pulled toward the planet's center.
-      for (let b = world.getBodyList(); b; b = b.getNext()) {
-        if (!b.isDynamic() || !b.isAwake()) continue;
-        const p = b.getPosition();
-        const d = Math.hypot(p.x, p.y);
-        const pull = (gm() / (d * SCALE) ** 2 / SCALE) * b.getMass();
-        b.applyForceToCenter({ x: (-p.x / d) * pull, y: (-p.y / d) * pull }, false);
-      }
-      world.step(dt);
-
-      for (const [sat, body] of satellites) {
-        if (body.isDynamic()) [sat.x, sat.y] = [body.getPosition().x * SCALE, body.getPosition().y * SCALE];
-      }
-      for (let i = debris.length - 1; i >= 0; i--) {
-        const piece = debris[i];
-        piece.age += dt;
-        piece.x = piece.body.getPosition().x * SCALE;
-        piece.y = piece.body.getPosition().y * SCALE;
-        piece.angle = piece.body.getAngle();
-        if (piece.age > tokens.debrisFade) {
-          world.destroyBody(piece.body);
-          debris.splice(i, 1);
+      const ground = tokens.planetRadius;
+      const hits: Impact[] = [];
+      for (const [sat, body] of falling) {
+        fall(body, dt, tokens.fallDrag);
+        [sat.x, sat.y] = [body.x, body.y];
+        if (Math.hypot(body.x, body.y) < ground + tokens.satelliteSize / 2) {
+          hits.push({ sat, x: body.x, y: body.y });
+          falling.delete(sat);
         }
       }
-      const hits = impacts;
-      impacts = [];
+
+      const rub = Math.max(0, 1 - FRICTION * dt);
+      for (const p of debris) {
+        p.age += dt;
+        if (asleep(p)) continue;
+        fall(p, dt);
+        p.angle += p.spin * dt;
+      }
+      // Debris pieces push each other apart, so they pile up instead of overlapping.
+      // A sleeping piece doesn't budge; the awake one does all the moving.
+      for (let i = 0; i < debris.length; i++) {
+        for (let j = i + 1; j < debris.length; j++) {
+          const a = debris[i], b = debris[j];
+          if (asleep(a) && asleep(b)) continue;
+          const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+          const overlap = (a.size + b.size) * 0.8 - d;
+          if (overlap <= 0) continue;
+          const nx = dx / d, ny = dy / d;
+          const wa = asleep(a) ? 0 : asleep(b) ? 1 : 0.5, wb = 1 - wa; // who moves how much
+          const closing = Math.min(0, (b.vx - a.vx) * nx + (b.vy - a.vy) * ny);
+          a.x -= nx * overlap * wa; a.y -= ny * overlap * wa;
+          b.x += nx * overlap * wb; b.y += ny * overlap * wb;
+          a.vx = (a.vx + nx * closing * wa) * rub; a.vy = (a.vy + ny * closing * wa) * rub;
+          b.vx = (b.vx - nx * closing * wb) * rub; b.vy = (b.vy - ny * closing * wb) * rub;
+        }
+      }
+      // The ground: debris can't sink into the planet. It bounces, then slides to a stop.
+      for (const p of debris) {
+        if (asleep(p)) continue;
+        const d = Math.hypot(p.x, p.y), floor = ground + p.size * 0.6;
+        if (d < floor) {
+          const nx = p.x / d, ny = p.y / d;
+          const into = p.vx * nx + p.vy * ny; // speed toward the ground (negative)
+          const along = (p.vy * nx - p.vx * ny) * rub; // speed along it
+          const bounce = into < -20 ? -into * tokens.debrisBounce : 0; // tiny bounces stop
+          p.x = nx * floor; p.y = ny * floor;
+          p.vx = nx * bounce - ny * along;
+          p.vy = ny * bounce + nx * along;
+          p.spin = along / p.size; // roll along the surface
+        }
+        p.rest = Math.hypot(p.vx, p.vy) < 10 ? p.rest + dt : 0; // slow for a while = asleep
+      }
+      for (let i = debris.length - 1; i >= 0; i--) {
+        if (debris[i].age > tokens.debrisFade) debris.splice(i, 1);
+      }
       return hits;
     },
   };

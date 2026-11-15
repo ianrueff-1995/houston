@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Houston
 
-## Getting Started
+> Houston, we have a problem.
 
-First, run the development server:
+A tiny, playful Next.js game, and the test repo for a design pilot: designers
+leave Vercel toolbar comments on it, and Claude Code fixes them.
+
+- Designers: read [START_HERE.md](START_HERE.md).
+- Claude Code: reads [CLAUDE.md](CLAUDE.md).
+
+## Play
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Launch satellites from the three bases. Each one goes OK → Needs check →
+Critical → Falling. Click it (or its Check button) to fix it. Keys: 1–3 launch,
+Space checks the most urgent satellite, R resets.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`npm run lint` and `npm run build` should always pass.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it's built
 
-## Learn More
+- Next.js 16 (App Router, TypeScript) and Tailwind 4. No backend.
+- `game/store.ts` is a plain TS store outside React: one requestAnimationFrame
+  loop with a fixed 60 Hz step. The UI reads a snapshot about 5× a second with
+  `useSyncExternalStore`, so React never re-renders per frame.
+- `components/GameCanvas.tsx` draws everything with Canvas 2D, sharp on high-DPI screens.
+- Every color, size and timing is a CSS variable in `app/globals.css`; the
+  canvas reads them through `game/tokens.ts`, live.
+- Physics is hand-written (`game/world.ts`). A Planck.js version came first
+  as a spike; it's in the git history with the reasons it was replaced.
 
-To learn more about Next.js, take a look at the following resources:
+## Pilot setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The Vercel toolbar is mounted in development (`app/layout.tsx`,
+  `next.config.ts`). It appears on localhost once the folder is linked to a
+  Vercel project with `vercel link`.
+- `.claude/settings.json` pre-approves the safe commands (dev, lint, build,
+  git status/diff/add/commit, gh pr create).
+- `.worktreeinclude` copies `.env.local` and `.vercel` into Claude Code worktrees.

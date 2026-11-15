@@ -1,0 +1,31 @@
+{
+  "seed": 1,
+  "name": "Houston",
+  "about": "A playful satellite game for trying comment → fix → preview with Claude Code.",
+  "repo": "https://github.com/mystico53/houston",
+  "folder": "houston",
+  "stages": [
+    { "title": "Check your machine", "steps": [
+      { "title": "Git", "check": "git --version", "help": "https://git-scm.com/downloads" },
+      { "title": "Node.js 20 or newer", "check": "node --version", "min": "20", "help": "https://nodejs.org/en/download" },
+      { "title": "GitHub CLI", "check": "gh --version", "help": "https://cli.github.com" },
+      { "title": "Claude Code", "check": "claude --version", "help": "https://code.claude.com/docs/en/setup" }
+    ]},
+    { "title": "Sign in", "steps": [
+      { "title": "GitHub", "check": "gh auth status", "run": "gh auth login --hostname github.com --web --git-protocol https", "then": "gh auth setup-git", "visible": true },
+      { "title": "Claude", "check": "claude auth status", "run": "claude auth login", "visible": true }
+    ]},
+    { "title": "Get the code", "in": "folder", "steps": [
+      { "title": "Download Houston", "check": { "exists": ".git" }, "run": "git clone {repo} ." },
+      { "title": "Install packages", "check": { "exists": "node_modules" }, "run": "npm install" },
+      { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
+      { "title": "Link to Vercel", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --scope YOUR_VERCEL_TEAM --project houston" },
+      { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,
+        "hint": "Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then type /exit." }
+    ]},
+    { "title": "Start the site", "in": "folder", "steps": [
+      { "title": "Run Houston", "run": "npm run dev", "background": true, "port": "from-output" }
+    ]}
+  ],
+  "island": { "name": "Houston", "chat": "Houston", "browser": "site", "note": "START_HERE.md", "firstTask": "Make the planet pinker" }
+}

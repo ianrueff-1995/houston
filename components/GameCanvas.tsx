@@ -139,7 +139,7 @@ function drawParticles(ctx: CanvasRenderingContext2D) {
   for (const p of game.particles?.pool ?? []) {
     if (p.life <= 0) continue;
     const t = p.life / p.maxLife; // 1 → 0 as it fades
-    ctx.globalAlpha = t;
+    ctx.globalAlpha = p.kind === "puff" ? t * 0.5 : t; // puffs are see-through smoke
     ctx.fillStyle = p.color;
     if (p.kind === "confetti") {
       ctx.save();

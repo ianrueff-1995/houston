@@ -19,13 +19,17 @@ export default function BaseCard({ base, compact = false }: { base: BaseView; co
   if (compact) {
     const refuel = base.status === "empty";
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="flex items-center gap-1.5 truncate text-xs text-muted">
+          <span className={`size-1.5 shrink-0 rounded-full ${LIGHT[base.status]}`} />
+          {base.name} · {base.label}
+        </span>
         <button
           disabled={refuel ? !base.canRefuel : !base.canLaunch}
           onClick={() => (refuel ? refuelBase(base.id) : launchFrom(base.id))}
           className="rounded-lg bg-accent px-2 py-2 text-sm font-medium text-accent-text disabled:opacity-40"
         >
-          {refuel ? "Refuel" : "Launch"} {base.name}
+          {refuel ? "Refuel" : "Launch"}
         </button>
         {progress}
       </div>

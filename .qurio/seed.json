@@ -7,7 +7,7 @@
   "stages": [
     { "title": "Check your machine", "steps": [
       { "title": "Git", "check": "git --version", "help": "https://git-scm.com/downloads" },
-      { "title": "Node.js 20 or newer", "check": "node --version", "min": "20", "help": "https://nodejs.org/en/download" },
+      { "title": "Node.js 20 or newer", "check": "node --version", "min": "20.9", "help": "https://nodejs.org/en/download" },
       { "title": "GitHub CLI", "check": "gh --version", "help": "https://cli.github.com" },
       { "title": "Claude Code", "check": "claude --version", "help": "https://code.claude.com/docs/en/setup" }
     ]},
@@ -21,7 +21,7 @@
       { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
       { "title": "Link to Vercel", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --scope YOUR_VERCEL_TEAM --project houston" },
       { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,
-        "hint": "Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then type /exit." }
+        "hint": "Claude first asks whether you trust this folder: choose Yes. Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then type /exit." }
     ]},
     { "title": "Start the site", "in": "folder", "steps": [
       { "title": "Run Houston", "run": "npm run dev", "background": true, "port": "from-output" }

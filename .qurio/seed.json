@@ -17,7 +17,7 @@
     ]},
     { "title": "Get the code", "in": "folder", "steps": [
       { "title": "Download Houston", "check": { "exists": ".git" }, "run": "git clone {repo} ." },
-      { "title": "Install packages", "check": { "exists": "node_modules" }, "run": "npm install" },
+      { "title": "Install packages", "check": { "exists": "node_modules/.package-lock.json" }, "run": "npm install" },
       { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
       { "title": "Link to Vercel", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --scope mystico53s-projects --project houston" },
       { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,

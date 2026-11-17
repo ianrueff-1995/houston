@@ -70,15 +70,20 @@ function draw(ctx: CanvasRenderingContext2D, width: number, height: number) {
     ctx.lineWidth = 1 / scale;
     for (const s of game.satellites) circle(ctx, 0, 0, s.orbit, "stroke");
   }
+  // Cel shading: every shape gets a dark ink outline with round corners.
+  ctx.strokeStyle = tokens.ink;
+  ctx.lineWidth = tokens.inkWidth;
+  ctx.lineJoin = "round";
   drawPlanet(ctx);
   for (const base of game.bases) {
     ctx.save();
     ctx.rotate(base.angle + Math.PI / 2);
     ctx.fillStyle = tokens.base;
     ctx.fillRect(-7, -tokens.planetRadius - 4, 14, 5);
+    ctx.strokeRect(-7, -tokens.planetRadius - 4, 14, 5);
     const busy = base.status !== "ready";
     ctx.fillStyle = base.status === "empty" ? tokens.critical : busy ? tokens.warn : tokens.ok;
-    circle(ctx, 0, -tokens.planetRadius - 7, 2.5);
+    inked(ctx, 0, -tokens.planetRadius - 7, 2.5);
     ctx.restore();
   }
   for (const piece of game.world?.debris ?? []) {
@@ -89,7 +94,9 @@ function draw(ctx: CanvasRenderingContext2D, width: number, height: number) {
     ctx.rotate(piece.angle);
     ctx.beginPath();
     piece.points.forEach((p) => ctx.lineTo(p.x, p.y));
+    ctx.closePath();
     ctx.fill();
+    ctx.stroke();
     ctx.restore();
   }
   ctx.globalAlpha = 1;
@@ -97,22 +104,36 @@ function draw(ctx: CanvasRenderingContext2D, width: number, height: number) {
   drawParticles(ctx);
   ctx.font = "600 13px ui-sans-serif, system-ui, sans-serif";
   ctx.textAlign = "center";
+  ctx.font = "800 13px ui-sans-serif, system-ui, sans-serif";
   for (const label of game.labels) {
+    const y = label.y - label.age * 25;
     ctx.globalAlpha = 1 - label.age / 1.2;
+    ctx.lineWidth = tokens.inkWidth * 2; // ink outline around the letters
+    ctx.strokeText(label.text, label.x, y);
     ctx.fillStyle = tokens.sparkle;
-    ctx.fillText(label.text, label.x, label.y - label.age * 25);
+    ctx.fillText(label.text, label.x, y);
   }
   ctx.globalAlpha = 1;
 }
 
+// Cel-shaded planet: three flat bands (light, base, shadow) with hard edges,
+// a flat atmosphere ring and an ink outline. No gradients.
 function drawPlanet(ctx: CanvasRenderingContext2D) {
   const r = tokens.planetRadius;
-  glow(ctx, 0, 0, r * 1.35, tokens.atmosphere, r * 0.9);
-  const shade = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
-  shade.addColorStop(0, tokens.planet);
-  shade.addColorStop(1, tokens.planetShade);
-  ctx.fillStyle = shade;
+  ctx.fillStyle = tokens.atmosphere;
+  circle(ctx, 0, 0, r * 1.15);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, TAU);
+  ctx.clip();
+  ctx.fillStyle = tokens.planetShade; // shadow band, bottom right
   circle(ctx, 0, 0, r);
+  ctx.fillStyle = tokens.planet; // base color, shifted up-left so a hard crescent of shadow shows
+  circle(ctx, -r * 0.22, -r * 0.22, r);
+  ctx.fillStyle = tokens.planetLight; // highlight band, top left
+  circle(ctx, -r * 0.6, -r * 0.6, r * 0.55);
+  ctx.restore();
+  circle(ctx, 0, 0, r, "stroke");
 }
 
 function drawSatellite(ctx: CanvasRenderingContext2D, sat: Satellite, now: number) {
@@ -122,17 +143,23 @@ function drawSatellite(ctx: CanvasRenderingContext2D, sat: Satellite, now: numbe
   if (sat.status === "critical") {
     x += Math.sin(now * 47 + sat.id) * tokens.wobble;
     y += Math.cos(now * 39 + sat.id) * tokens.wobble;
-    glow(ctx, x, y, size * 4 * tokens.glow, color);
+    // A flat, hard-edged halo instead of a soft glow.
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = color;
+    circle(ctx, x, y, size * 2.5 * tokens.glow);
+    ctx.globalAlpha = 1;
   }
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(sat.status === "falling" ? now * 6 : sat.angle); // falling ones tumble
   ctx.fillStyle = tokens.satellite;
+  ctx.lineWidth = tokens.inkWidth * 0.75;
   ctx.fillRect(-size * 1.6, -size * 0.3, size * 3.2, size * 0.6); // solar panels
+  ctx.strokeRect(-size * 1.6, -size * 0.3, size * 3.2, size * 0.6);
   ctx.restore();
   const blinkOff = sat.status === "warn" && now % tokens.blinkTime > tokens.blinkTime / 2;
   ctx.fillStyle = blinkOff ? tokens.satellite : color;
-  circle(ctx, x, y, size * 0.6);
+  inked(ctx, x, y, size * 0.6);
 }
 
 function drawParticles(ctx: CanvasRenderingContext2D) {
@@ -154,13 +181,10 @@ function drawParticles(ctx: CanvasRenderingContext2D) {
   ctx.globalAlpha = 1;
 }
 
-// A soft round glow: a radial gradient from `color` to transparent.
-function glow(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string, inner = 0) {
-  const g = ctx.createRadialGradient(x, y, inner, x, y, r);
-  g.addColorStop(0, color);
-  g.addColorStop(1, "transparent");
-  ctx.fillStyle = g;
+// A filled circle with an ink outline, in one path.
+function inked(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   circle(ctx, x, y, r);
+  ctx.stroke();
 }
 
 // Stars sit at fixed pseudo-random spots, so they don't jump between frames.

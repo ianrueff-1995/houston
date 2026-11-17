@@ -22,8 +22,18 @@
   --orbit-line: rgba(255, 255, 255, 0.12);
   --planet: #4f7cff;
   --planet-shade: #1e3a8a;
+  --planet-light: #9db8ff; /* the flat highlight band on the planet */
   --atmosphere: rgba(120, 170, 255, 0.35);
   --planet-radius: 70px;
+
+  /* Cel shading: flat color bands, hard shadows, dark outlines */
+  --ink: #0b0b12; /* outline color in the sky */
+  --ink-width: 2px; /* outline thickness in the sky */
+  --ui-ink: var(--foreground); /* outline + hard shadow color on panels and buttons */
+  --ui-outline: 2px; /* panel and button outline thickness */
+  --ui-shadow: 4px; /* how far the hard shadow sits under panels */
+  --ui-shadow-small: 2px; /* same, for buttons and chips */
+  --press-time: 0.08s; /* how fast a button presses in */
 
   /* Satellites */
   --satellite-body: #e4e4e7;
@@ -99,6 +109,28 @@
   --color-falling: var(--status-falling);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* Cel-shaded panels: a thick outline and a hard, unblurred shadow. */
+@utility cel {
+  border: var(--ui-outline) solid var(--ui-ink);
+  box-shadow: var(--ui-shadow) var(--ui-shadow) 0 var(--ui-ink);
+}
+
+/* Cel-shaded buttons and chips: smaller shadow that "presses in" when clicked. */
+@utility cel-button {
+  border: var(--ui-outline) solid var(--ui-ink);
+  box-shadow: var(--ui-shadow-small) var(--ui-shadow-small) 0 var(--ui-ink);
+  transition: transform var(--press-time), box-shadow var(--press-time);
+  &:enabled:active {
+    transform: translate(var(--ui-shadow-small), var(--ui-shadow-small));
+    box-shadow: none;
+  }
+}
+
+/* Status lights: a flat dot with an ink rim instead of a soft glow. */
+@utility cel-dot {
+  border: calc(var(--ui-outline) * 0.75) solid var(--ui-ink);
 }
 
 body {

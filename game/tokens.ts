@@ -9,6 +9,8 @@ const COLORS = {
   orbitLine: "--orbit-line",
   planet: "--planet",
   planetShade: "--planet-shade",
+  planetLight: "--planet-light",
+  ink: "--ink",
   atmosphere: "--atmosphere",
   satellite: "--satellite-body",
   ok: "--status-ok",
@@ -26,6 +28,7 @@ const COLORS = {
 const NUMBERS = {
   planetRadius: "--planet-radius",
   satelliteSize: "--satellite-size",
+  inkWidth: "--ink-width",
   glow: "--glow-strength",
   wobble: "--wobble",
   blinkTime: "--blink-time",

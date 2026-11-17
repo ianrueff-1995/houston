@@ -8,7 +8,7 @@ type Props = Pick<Snapshot, "scenario" | "speed" | "showOrbits">;
 
 export default function ScenarioPanel({ scenario, speed, showOrbits }: Props) {
   return (
-    <section className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-line bg-card p-3 text-sm">
+    <section className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl cel bg-card p-3 text-sm">
       <Group label="Scenario">
         {SCENARIOS.map((s) => (
           <Chip key={s.id} active={s.id === scenario} title={s.hint} onClick={() => setScenario(s.id)}>
@@ -45,8 +45,8 @@ function Chip({ active, children, ...props }: { active: boolean; children: React
     <button
       {...props}
       aria-pressed={active}
-      className={`rounded-full border px-3 py-1 transition-colors ${
-        active ? "border-accent bg-accent text-accent-text" : "border-line hover:bg-black/5 dark:hover:bg-white/10"
+      className={`cel-button rounded-full px-3 py-1 font-medium ${
+        active ? "bg-accent text-accent-text" : "hover:bg-black/5 dark:hover:bg-white/10"
       }`}
     >
       {children}

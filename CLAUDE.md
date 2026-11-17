@@ -64,6 +64,10 @@ asks for a physics change (like craters), and say that you did.
 - The Vercel CLI is a dev dependency: run it as `npx vercel …` (no global install).
 - The Vercel MCP server is set up in `.mcp.json`. It works once the designer has
   signed in with `/mcp`. Use it to find preview links, deployments and build logs.
+- Signing in with `/mcp` doesn't give access to the designer's team yet. If a Vercel
+  MCP call returns 403, call `authorize_team_access` with the `orgId` from
+  `.vercel/project.json`. Show the designer the link (it works once, for 10 minutes)
+  and ask them to approve, then retry. Don't ask them to reconnect.
 - Never deploy to production or change project settings unless asked.
 
 ## Check your work before sharing

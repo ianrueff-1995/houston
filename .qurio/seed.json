@@ -22,7 +22,7 @@
       { "title": "Link to Vercel", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston", "visible": true,
         "hint": "If Vercel asks which team, pick yours with the arrow keys and press Enter." },
       { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,
-        "hint": "Claude first asks whether you trust this folder: choose Yes. Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then type /exit." }
+        "hint": "Claude first asks whether you trust this folder: choose Yes. Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then ask Claude: list my Vercel projects. If Claude shows a vercel.com link instead, open it and approve your team, then ask again. When you see houston, type /exit." }
     ]},
     { "title": "Start the site", "in": "folder", "steps": [
       { "title": "Run Houston", "run": "npm run dev", "background": true, "port": "from-output" }

@@ -47,6 +47,7 @@ people you work with here are designers, not engineers.
 | `game/scenarios.ts` | Calm / Busy Tuesday / Solar storm / Empty sky, speeds |
 | `game/tokens.ts` | Reads the tokens for the canvas and game |
 | `game/world.ts` | Physics: falling satellites, impacts, debris |
+| `scripts/vercel-git-check.mjs` | Setup check: does the Vercel project deploy from this fork? |
 
 Keep one job per file so several changes can run in parallel without touching
 the same file. The app is about 1,000 lines; keep it small and readable. Don't
@@ -61,6 +62,10 @@ asks for a physics change (like craters), and say that you did.
 
 ## Vercel
 
+- Each designer has their own copy: `origin` is their GitHub fork, `upstream` is
+  mystico53/houston, and the Vercel project lives in their own team. Read the team
+  and project from `.vercel/project.json` (`orgId`, `projectId`); never assume
+  someone else's.
 - The Vercel CLI is a dev dependency: run it as `npx vercel …` (no global install).
 - The Vercel MCP server is set up in `.mcp.json`. It works once the designer has
   signed in with `/mcp`. Use it to find preview links, deployments and build logs.

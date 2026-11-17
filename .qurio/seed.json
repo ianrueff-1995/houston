@@ -16,11 +16,14 @@
       { "title": "Claude", "check": "claude auth status", "run": "claude auth login", "visible": true }
     ]},
     { "title": "Get the code", "in": "folder", "steps": [
-      { "title": "Download Houston", "check": { "exists": ".git" }, "run": "git clone {repo} ." },
+      { "title": "Make your own copy", "check": { "exists": ".git" }, "run": "gh repo fork {repo} --clone -- ." },
+      { "title": "Point Git at your copy", "check": "git remote get-url upstream", "expect": "github\\.com[/:]mystico53/houston", "run": "gh repo fork --remote" },
       { "title": "Install packages", "check": { "exists": "node_modules/.package-lock.json" }, "run": "npm install" },
       { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
-      { "title": "Link to Vercel", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston", "visible": true,
-        "hint": "If Vercel asks which team, pick yours with the arrow keys and press Enter." },
+      { "title": "Make your Vercel project", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston", "visible": true,
+        "hint": "If Vercel asks \"Which team?\", pick the team Houston should live in with the arrow keys and press Enter. With only one team it picks it by itself. It makes a houston project there if the team doesn't have one." },
+      { "title": "Deploy from your copy", "check": "node scripts/vercel-git-check.mjs", "run": "npx vercel git connect $(git remote get-url origin) --yes", "visible": true,
+        "hint": "If it says \"Failed to connect\", Vercel can't see your GitHub copy yet. Open https://github.com/apps/vercel, install it on your GitHub account (just houston is fine), then run the command again: press the Up arrow, then Enter." },
       { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,
         "hint": "Claude first asks whether you trust this folder: choose Yes. Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then ask Claude: list my Vercel projects. If Claude shows a vercel.com link instead, open it and approve your team, then ask again. When you see houston, type /exit." }
     ]},

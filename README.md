@@ -45,4 +45,7 @@ Space checks the most urgent satellite, R resets.
 - `.mcp.json` adds the Vercel MCP server (`https://mcp.vercel.com`), and
   `.claude/settings.json` approves it. Claude Code only honors that approval once
   you've trusted the folder (the first time you run `claude` there). Then sign in with `/mcp`.
-- `.qurio/seed.json` is the Qurio seed that sets all of this up on a new machine.
+- `.qurio/seed.json` is the Qurio seed that sets all of this up on a new machine:
+  each designer gets their own GitHub fork (`origin`; this repo is `upstream`) and
+  their own `houston` Vercel project in a team they pick, deploying from that fork.
+  `scripts/vercel-git-check.mjs` is its read-only check for that last part.

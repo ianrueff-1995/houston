@@ -63,7 +63,9 @@ asks for a physics change (like craters), and say that you did.
 ## Vercel
 
 - Each designer has their own copy: `origin` is their GitHub fork, `upstream` is
-  mystico53/houston, and the Vercel project lives in their own team. Read the team
+  mystico53/houston, and the Vercel project lives in their own team. Pull requests
+  stay in the fork: GitHub CLI's default repo is `origin`, so `gh pr create` opens
+  them there. Use `upstream` only to pull in updates. Read the team
   and project from `.vercel/project.json` (`orgId`, `projectId`); never assume
   someone else's.
 - The Vercel CLI is a dev dependency: run it as `npx vercel …` (no global install).

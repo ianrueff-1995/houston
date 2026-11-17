@@ -48,4 +48,5 @@ Space checks the most urgent satellite, R resets.
 - `.qurio/seed.json` is the Qurio seed that sets all of this up on a new machine:
   each designer gets their own GitHub fork (`origin`; this repo is `upstream`) and
   their own `houston` Vercel project in a team they pick, deploying from that fork.
+  GitHub CLI's default repo is the fork, so pull requests stay there.
   `scripts/vercel-git-check.mjs` is its read-only check for that last part.

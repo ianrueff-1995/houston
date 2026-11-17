@@ -18,6 +18,7 @@
     { "title": "Get the code", "in": "folder", "steps": [
       { "title": "Make your own copy", "check": { "exists": ".git" }, "run": "gh repo fork {repo} --clone -- ." },
       { "title": "Point Git at your copy", "check": "git remote get-url upstream", "expect": "github\\.com[/:]mystico53/houston", "run": "gh repo fork --remote" },
+      { "title": "Keep pull requests in your copy", "check": "git config remote.origin.gh-resolved", "expect": "^\\s*base\\s*$", "run": "gh repo set-default origin" },
       { "title": "Install packages", "check": { "exists": "node_modules/.package-lock.json" }, "run": "npm install" },
       { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
       { "title": "Make your Vercel project", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston", "visible": true,

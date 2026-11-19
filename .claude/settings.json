@@ -16,7 +16,39 @@
       "Bash(git diff:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(gh pr create:*)"
+      "Bash(git log)",
+      "Bash(git log:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git fetch)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(git push origin:*)",
+      "Bash(git push -u origin:*)",
+      "Bash(gh pr create:*)",
+      "mcp__vercel__list_toolbar_threads",
+      "mcp__vercel__get_toolbar_thread",
+      "mcp__vercel__reply_to_toolbar_thread",
+      "mcp__vercel__change_toolbar_thread_resolve_status",
+      "mcp__vercel__list_deployments",
+      "mcp__vercel__get_deployment",
+      "mcp__vercel__list_deployment_events"
+    ],
+    "deny": [
+      "Bash(git push *--force*)",
+      "Bash(git push -f)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push *+*)",
+      "Bash(git push *--mirror*)",
+      "Bash(git push *--all*)",
+      "Bash(git push origin)",
+      "Bash(git push -u origin)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push *:main)",
+      "Bash(git push *:main *)",
+      "Bash(git push *refs/heads/main*)"
     ]
   }
 }

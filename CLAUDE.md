@@ -77,6 +77,34 @@ asks for a physics change (like craters), and say that you did.
   and ask them to approve, then retry. Don't ask them to reconnect.
 - Never deploy to production or change project settings unless asked.
 
+## The loop
+
+**"Fix my comments"**
+
+1. Read the open toolbar threads for this project with the Vercel MCP
+   (`list_toolbar_threads`, then `get_toolbar_thread` for the details).
+2. Start a branch if you're on `main` (see Share). Make one small change per
+   comment and one commit per change, and check your work (below).
+3. Share.
+4. Reply on each thread with what changed on screen plus the preview link, then
+   resolve it. If you had to guess or couldn't do it, say so and leave it open.
+
+**Share**
+
+1. Always work and push from a branch, never `main`: pushing `main` deploys to
+   production. On `main`? Run `git switch -c <short-name>` first.
+2. Push the branch to `origin` (the designer's fork): `git push -u origin <branch>`.
+3. Find the preview with `list_deployments`, filtered by branch or commit. Wait
+   until it is ready, then give the designer the link. If the build failed, read
+   the build log (`list_deployment_events`) and say what went wrong in plain words.
+4. If the designer wants a pull request, open it with `gh pr create`.
+
+**Get the latest**
+
+1. `git fetch upstream`, then `git merge upstream/main`.
+2. If there is a conflict, stop. Explain in plain words what clashes with what
+   and ask which to keep. Never resolve it silently.
+
 ## Check your work before sharing
 
 - `npm run dev`, then open http://localhost:3000.

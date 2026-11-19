@@ -3,6 +3,21 @@
   "enabledMcpjsonServers": [
     "vercel"
   ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/no-push-on-main.mjs"],
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(npm run dev)",

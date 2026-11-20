@@ -47,7 +47,7 @@
   --blink-time: 0.6s; /* one amber blink */
   --orbit-low: 50px; /* lowest orbit, measured from the surface */
   --orbit-high: 165px; /* highest orbit; planet + this + a glowing satellite must stay under 300px (half the sky) */
-  --orbit-speed: 1; /* 2 = everything orbits twice as fast */
+  --orbit-speed: 1.24; /* 2 = everything orbits twice as fast. 1.24 keeps the pace from before the planet grew */
   --hit-radius: 40px; /* how close a click has to be to a satellite (generous: they move) */
 
   /* Satellite moods */

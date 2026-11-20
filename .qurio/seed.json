@@ -32,5 +32,6 @@
       { "title": "Run Houston", "run": "npm run dev", "background": true, "port": "from-output" }
     ]}
   ],
-  "island": { "name": "Houston", "chat": "Houston", "browser": "site", "note": "START_HERE.md", "firstTask": "Make the planet pinker" }
+  "island": { "name": "Houston", "chat": "Houston", "browser": "site", "note": "START_HERE.md", "firstTask": "Make the planet pinker" },
+  "live": { "title": "Go live", "run": "npx vercel deploy --prod --yes" }
 }

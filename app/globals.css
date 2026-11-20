@@ -24,7 +24,7 @@
   --planet-shade: #1e3a8a;
   --planet-light: #9db8ff; /* the flat highlight band on the planet */
   --atmosphere: rgba(120, 170, 255, 0.35);
-  --planet-radius: 70px;
+  --planet-radius: 105px; /* orbits, bases, impacts and debris all follow this */
 
   /* Cel shading: flat color bands, hard shadows, dark outlines */
   --ink: #0b0b12; /* outline color in the sky */
@@ -46,7 +46,7 @@
   --wobble: 2px; /* how hard critical satellites shake */
   --blink-time: 0.6s; /* one amber blink */
   --orbit-low: 50px; /* lowest orbit, measured from the surface */
-  --orbit-high: 190px; /* highest orbit */
+  --orbit-high: 165px; /* highest orbit; planet + this + a glowing satellite must stay under 300px (half the sky) */
   --orbit-speed: 1; /* 2 = everything orbits twice as fast */
   --hit-radius: 40px; /* how close a click has to be to a satellite (generous: they move) */
 

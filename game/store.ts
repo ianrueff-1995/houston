@@ -74,7 +74,7 @@ export function check(id: number) {
   game.particles?.burst("sparkle", sat.x, sat.y, 16);
   if (was === "critical") {
     game.particles?.burst("confetti", sat.x, sat.y, 30);
-    game.labels.push({ text: "close call!", x: sat.x, y: sat.y - 14, age: 0 });
+    game.labels.push({ text: "close call!", x: sat.x, y: sat.y - tokens.satelliteSize * 2.5, age: 0 }); // starts just above the glow
   }
   emit();
 }
@@ -89,11 +89,15 @@ export const setScenario = (id: ScenarioId) => reset(id);
 export const setSpeed = (speed: number) => { game.speed = speed; emit(); };
 export const toggleOrbits = () => { game.showOrbits = !game.showOrbits; emit(); };
 
-/** The satellite under a point in sky coordinates, if any (for clicks on the canvas). */
+/**
+ * The satellite that needs a check under a point in sky coordinates, if any (for clicks
+ * on the canvas). Healthy ones are skipped, so they never block a click on a nearby one.
+ */
 export function satelliteAt(x: number, y: number) {
   let best: Satellite | undefined;
   let bestDistance = tokens.hitRadius;
   for (const s of game.satellites) {
+    if (urgency(s) === Infinity) continue; // OK, launching or falling: nothing to check
     const d = Math.hypot(s.x - x, s.y - y);
     if (d < bestDistance) [best, bestDistance] = [s, d];
   }

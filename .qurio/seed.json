@@ -21,9 +21,9 @@
       { "title": "Keep pull requests in your copy", "check": "git config remote.origin.gh-resolved", "expect": "^\\s*base\\s*$", "run": "gh repo set-default origin" },
       { "title": "Install packages", "check": { "exists": "node_modules/.package-lock.json" }, "run": "npm install" },
       { "title": "Sign in to Vercel", "check": "npx vercel whoami", "run": "npx vercel login", "visible": true },
-      { "title": "Make your Vercel project", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston", "visible": true,
+      { "title": "Make your Vercel project", "check": { "exists": ".vercel/project.json" }, "run": "npx vercel link --yes --project houston",
         "hint": "If Vercel asks \"Which team?\", pick the team Houston should live in with the arrow keys and press Enter. With only one team it picks it by itself. It makes a houston project there if the team doesn't have one." },
-      { "title": "Deploy from your copy", "check": "node scripts/vercel-git-check.mjs", "run": "npx vercel git connect $(git remote get-url origin) --yes", "visible": true,
+      { "title": "Deploy from your copy", "check": "node scripts/vercel-git-check.mjs", "run": "npx vercel git connect $(git remote get-url origin) --yes",
         "hint": "If it says \"Failed to connect\", Vercel can't see your GitHub copy yet. Open https://github.com/apps/vercel, install it on your GitHub account (just houston is fine), then run the command again: press the Up arrow, then Enter." },
       { "title": "Connect Claude to Vercel", "check": "claude mcp list", "expect": "vercel.*(Connected|✓)", "run": "claude", "visible": true,
         "hint": "Claude first asks whether you trust this folder: choose Yes. Type /mcp, pick vercel, choose Authenticate and approve in the browser. Then ask Claude: list my Vercel projects. If Claude shows a vercel.com link instead, open it and approve your team, then ask again. When you see houston, type /exit." }

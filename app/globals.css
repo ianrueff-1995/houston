@@ -48,7 +48,7 @@
   --orbit-low: 50px; /* lowest orbit, measured from the surface */
   --orbit-high: 190px; /* highest orbit */
   --orbit-speed: 1; /* 2 = everything orbits twice as fast */
-  --hit-radius: 22px; /* how close a click has to be to a satellite */
+  --hit-radius: 40px; /* how close a click has to be to a satellite (generous: they move) */
 
   /* Satellite moods */
   --ok-min: 6s;

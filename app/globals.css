@@ -37,7 +37,7 @@
 
   /* Satellites */
   --satellite-body: #e4e4e7;
-  --satellite-size: 6px;
+  --satellite-size: 9px; /* body size: panels, light and glow all scale from this */
   --status-ok: #22c55e;
   --status-warn: #f59e0b;
   --status-critical: #ef4444;

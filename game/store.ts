@@ -74,7 +74,7 @@ export function check(id: number) {
   game.particles?.burst("sparkle", sat.x, sat.y, 16);
   if (was === "critical") {
     game.particles?.burst("confetti", sat.x, sat.y, 30);
-    game.labels.push({ text: "close call!", x: sat.x, y: sat.y - 14, age: 0 });
+    game.labels.push({ text: "close call!", x: sat.x, y: sat.y - tokens.satelliteSize * 2.5, age: 0 }); // starts just above the glow
   }
   emit();
 }
